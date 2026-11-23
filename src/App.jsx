@@ -141,10 +141,41 @@ const MODULE_SLIDE_COMPONENTS = {
   ],
 };
 
+const STAGE_WIDTH = 1280;
+const STAGE_HEIGHT = 760;
+
+function useViewportScale() {
+  const [layout, setLayout] = useState(() => {
+    if (typeof window === 'undefined') return { scale: 1, isMobile: false };
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    return {
+      isMobile: w < 768,
+      scale: Math.min(w / STAGE_WIDTH, h / STAGE_HEIGHT),
+    };
+  });
+
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      setLayout({
+        isMobile: w < 768,
+        scale: Math.min(w / STAGE_WIDTH, h / STAGE_HEIGHT),
+      });
+    };
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  return layout;
+}
+
 export default function App() {
   const [activeModuleId, setActiveModuleId] = useState(null);
   const [[currentSlide, direction], setSlideState] = useState([0, 0]);
   const [subStep, setSubStep] = useState(0);
+  const { scale, isMobile } = useViewportScale();
 
   const activeModule = MODULES_CONFIG.find((m) => m.id === activeModuleId) || null;
   const slideComponents = activeModuleId ? MODULE_SLIDE_COMPONENTS[activeModuleId] || [] : [];
@@ -245,32 +276,46 @@ export default function App() {
       {/* Background Animation (Dipertahankan) */}
       <PixelBackground />
 
-      {/* Main Container (100vh Full Screen) */}
-      <main className="relative z-10 w-full h-full overflow-hidden">
-        {!activeModule ? (
-          <ModuleSelector modules={MODULES_CONFIG} onSelectModule={handleSelectModule} />
-        ) : (
-          <AnimatePresence mode="wait" custom={direction}>
-            <motion.div
-              key={`${activeModuleId}-${currentSlide}`}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="w-full h-full"
-            >
-              {CurrentSlideComponent && (
-                <CurrentSlideComponent
-                  step={subStep}
-                  setStep={setSubStep}
-                  onNextStep={handleNext}
-                  onPrevStep={handlePrev}
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
-        )}
+      {/* Main Container (Proportional Presentation Stage on Desktop/Laptop) */}
+      <main className="relative z-10 w-full h-full flex items-center justify-center overflow-hidden">
+        <div
+          style={
+            isMobile
+              ? undefined
+              : {
+                  width: `${STAGE_WIDTH}px`,
+                  height: `${STAGE_HEIGHT}px`,
+                  transform: `scale(${scale})`,
+                  transformOrigin: 'center center',
+                }
+          }
+          className={isMobile ? 'w-full h-full overflow-y-auto' : 'shrink-0 relative'}
+        >
+          {!activeModule ? (
+            <ModuleSelector modules={MODULES_CONFIG} onSelectModule={handleSelectModule} />
+          ) : (
+            <AnimatePresence mode="wait" custom={direction}>
+              <motion.div
+                key={`${activeModuleId}-${currentSlide}`}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                className="w-full h-full"
+              >
+                {CurrentSlideComponent && (
+                  <CurrentSlideComponent
+                    step={subStep}
+                    setStep={setSubStep}
+                    onNextStep={handleNext}
+                    onPrevStep={handlePrev}
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
+          )}
+        </div>
       </main>
 
       {/* Discreet PPT Navigation Controls */}
