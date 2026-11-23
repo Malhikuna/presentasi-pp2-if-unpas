@@ -1,10 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { ChevronUp, LayoutGrid, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronUp, LayoutGrid, Check, ChevronLeft, ChevronRight, Home } from 'lucide-react';
 
 export default function FloatingNav({
   currentIndex,
   totalSlides,
   slidesList = [],
+  modules = [],
+  activeModuleId,
+  onSelectModule,
+  onGoHome,
   onPrev,
   onNext,
   onSelectSlide,
@@ -39,7 +43,7 @@ export default function FloatingNav({
 
   return (
     <>
-      {/* 1. BOTTOM LEFT: SLIDE COUNTER & QUICK JUMP */}
+      {/* 1. BOTTOM LEFT: HOME, MODULE SWITCHER & SLIDE COUNTER */}
       <div
         ref={menuRef}
         className={`fixed bottom-0 left-0 z-50 p-6 transition-opacity duration-200 ${
@@ -47,64 +51,118 @@ export default function FloatingNav({
         }`}
       >
         <div className="relative">
-          {/* Slide Selector Popup Drawer */}
+          {/* Slide & Module Selector Popup Drawer */}
           {isOpen && (
-            <div className="absolute bottom-12 left-0 w-72 max-h-80 overflow-y-auto bg-white border border-zinc-200 rounded-xl shadow-lg p-2 space-y-1 mb-2 text-xs">
-              <div className="px-2 py-1.5 border-b border-zinc-100 font-mono text-[11px] text-zinc-400 uppercase tracking-wider flex justify-between items-center">
-                <span>Daftar Slide</span>
-                <span>{totalSlides} Total</span>
-              </div>
-              <div className="space-y-0.5 pt-1">
-                {slidesList.map((item, idx) => {
-                  const isActive = idx === currentIndex;
-                  return (
-                    <button
-                      key={item.id ?? idx}
-                      onClick={() => {
-                        onSelectSlide(idx);
-                        setIsOpen(false);
-                      }}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between gap-2 transition-colors cursor-pointer ${
-                        isActive
-                          ? 'bg-zinc-900 text-white font-medium'
-                          : 'text-zinc-700 hover:bg-zinc-100'
-                      }`}
-                    >
-                      <div className="truncate flex items-center gap-2">
-                        <span
-                          className={`font-mono text-[10px] ${
-                            isActive ? 'text-zinc-300' : 'text-zinc-400'
+            <div className="absolute bottom-12 left-0 w-76 max-h-96 overflow-y-auto bg-white border border-zinc-200 rounded-xl shadow-lg p-2 space-y-2 mb-2 text-xs">
+              {/* Quick Module Switcher */}
+              {modules.length > 0 && (
+                <div className="pb-2 border-b border-zinc-100 space-y-1">
+                  <div className="px-2 py-1 font-mono text-[10px] text-zinc-400 uppercase tracking-wider">
+                    Ganti Modul
+                  </div>
+                  <div className="grid grid-cols-2 gap-1">
+                    {modules.map((mod) => {
+                      const isModActive = mod.id === activeModuleId;
+                      return (
+                        <button
+                          key={mod.id}
+                          onClick={() => {
+                            onSelectModule?.(mod.id);
+                            setIsOpen(false);
+                          }}
+                          className={`px-2 py-1.5 rounded-lg text-left font-mono text-[11px] transition-colors cursor-pointer ${
+                            isModActive
+                              ? 'bg-emerald-600 text-white font-bold'
+                              : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
                           }`}
                         >
-                          {String(idx + 1).padStart(2, '0')}
-                        </span>
-                        <span className="truncate">{item.title}</span>
-                      </div>
-                      {isActive && <Check className="w-3.5 h-3.5 shrink-0 text-white" />}
-                    </button>
-                  );
-                })}
+                          <span className="block truncate">{mod.pertemuan}</span>
+                          <span
+                            className={`text-[9px] block ${
+                              isModActive ? 'text-emerald-100' : 'text-zinc-500'
+                            }`}
+                          >
+                            {mod.code}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <div className="px-2 py-1 border-b border-zinc-100 font-mono text-[11px] text-zinc-400 uppercase tracking-wider flex justify-between items-center">
+                  <span>Daftar Slide</span>
+                  <span>{totalSlides} Total</span>
+                </div>
+                <div className="space-y-0.5 pt-1">
+                  {slidesList.map((item, idx) => {
+                    const isActive = idx === currentIndex;
+                    return (
+                      <button
+                        key={item.id ?? idx}
+                        onClick={() => {
+                          onSelectSlide(idx);
+                          setIsOpen(false);
+                        }}
+                        className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                          isActive
+                            ? 'bg-zinc-900 text-white font-medium'
+                            : 'text-zinc-700 hover:bg-zinc-100'
+                        }`}
+                      >
+                        <div className="truncate flex items-center gap-2">
+                          <span
+                            className={`font-mono text-[10px] ${
+                              isActive ? 'text-zinc-300' : 'text-zinc-400'
+                            }`}
+                          >
+                            {String(idx + 1).padStart(2, '0')}
+                          </span>
+                          <span className="truncate">{item.title}</span>
+                        </div>
+                        {isActive && <Check className="w-3.5 h-3.5 shrink-0 text-white" />}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
 
-          {/* Trigger Button */}
-          <button
-            onClick={() => setIsOpen((prev) => !prev)}
-            className="flex items-center gap-2 bg-white border border-zinc-200 rounded-lg px-3 py-2 text-xs font-mono font-medium shadow-sm hover:bg-zinc-50 transition-colors cursor-pointer text-zinc-700"
-            title="Lihat daftar slide & lompat ke slide"
-          >
-            <LayoutGrid className="w-3.5 h-3.5 text-zinc-400" />
-            <span>
-              Slide <strong className="text-zinc-900">{String(currentIndex + 1).padStart(2, '0')}</strong> /{' '}
-              {String(totalSlides).padStart(2, '0')}
-            </span>
-            <ChevronUp
-              className={`w-3.5 h-3.5 text-zinc-400 transition-transform ${
-                isOpen ? 'rotate-180 text-zinc-900' : ''
-              }`}
-            />
-          </button>
+          {/* Trigger Row: Home + Slide Counter */}
+          <div className="flex items-center gap-1.5">
+            {onGoHome && (
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  onGoHome();
+                }}
+                className="flex items-center justify-center bg-white border border-zinc-200 rounded-lg p-2 shadow-sm hover:bg-zinc-50 transition-colors cursor-pointer text-zinc-600 hover:text-zinc-900"
+                title="Kembali ke Beranda Pilih Modul"
+              >
+                <Home className="w-3.5 h-3.5" />
+              </button>
+            )}
+
+            <button
+              onClick={() => setIsOpen((prev) => !prev)}
+              className="flex items-center gap-2 bg-white border border-zinc-200 rounded-lg px-3 py-2 text-xs font-mono font-medium shadow-sm hover:bg-zinc-50 transition-colors cursor-pointer text-zinc-700"
+              title="Lihat daftar slide & ganti modul"
+            >
+              <LayoutGrid className="w-3.5 h-3.5 text-zinc-400" />
+              <span>
+                Slide <strong className="text-zinc-900">{String(currentIndex + 1).padStart(2, '0')}</strong> /{' '}
+                {String(totalSlides).padStart(2, '0')}
+              </span>
+              <ChevronUp
+                className={`w-3.5 h-3.5 text-zinc-400 transition-transform ${
+                  isOpen ? 'rotate-180 text-zinc-900' : ''
+                }`}
+              />
+            </button>
+          </div>
         </div>
       </div>
 

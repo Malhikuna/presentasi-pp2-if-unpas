@@ -2,9 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FloatingNav from './components/FloatingNav';
 import PixelBackground from './components/PixelBackground';
-import { SLIDES_LIST } from './data/slidesList';
+import ModuleSelector from './components/ModuleSelector';
+import { MODULES_CONFIG } from './data/modulesConfig';
 
-// Slide Group 1: Pengantar, Event & ActionListener
+// ================= MODUL 09 (PERTEMUAN 2) =================
 import {
   CoverSlide,
   ReviewLayoutManagerSlide,
@@ -18,8 +19,6 @@ import {
   ActionListenerLambdaSlide,
   ListenerArchitectureSlide,
 } from './slides/IntroAndEventSlides';
-
-// Slide Group 2: 4 Tahap Tindakan & Validasi Input
 import {
   FourStagesPipelineSlide,
   ValidationFailureUxSlide,
@@ -27,8 +26,6 @@ import {
   ParsingAndBusinessRuleSlide,
   ErrorMessageBestPracticeSlide,
 } from './slides/ValidationPipelineSlides';
-
-// Slide Group 3: CardLayout & Contoh Lengkap DemoFormRingkasan
 import {
   CardLayoutConceptSlide,
   CardLayoutInteractiveSimSlide,
@@ -36,28 +33,40 @@ import {
   DemoCodePanelsSlide,
   DemoCodeValidationSlide,
 } from './slides/CardLayoutAndDemoSlides';
-
-// Slide Group 4: EDT, SwingWorker & State Form
 import {
   EdtConceptSlide,
   SwingWorkerTableSlide,
   SwingWorkerIntegrationSlide,
   FormStateConsistencySlide,
 } from './slides/EdtAndSwingWorkerSlides';
-
-// Slide Group 5: Langkah Eksperimen Praktikum
-import {
-  ExperimentSetupSlide,
-} from './slides/HandsOnExperimentSlides';
-
-// Slide Group 6: Sesi Mandiri, Rangkuman & Penutup
+import { ExperimentSetupSlide } from './slides/HandsOnExperimentSlides';
 import {
   ChallengeModifikasiSlide,
   SummarySlide,
   ClosingSlide,
 } from './slides/InteractiveAndClosingSlides';
 
-const TOTAL_SLIDES = SLIDES_LIST.length;
+// ================= MODUL 10 (PERTEMUAN 3) =================
+import {
+  Mod10CoverSlide,
+  Mod10ReviewStagesSlide,
+  Mod10ObjectivesSlide,
+  Mod10TableModelConceptSlide,
+  Mod10IdentityVsIndexSlide,
+  Mod10CoreCodeSlide,
+} from './slides/mod10/Mod10IntroAndConceptSlides';
+import {
+  Mod10JTableScrollSimSlide,
+  Mod10SortingTypeSimSlide,
+  Mod10ViewVsModelSimSlide,
+  Mod10MemoryVsDbSimSlide,
+  Mod10LayeredArchSimSlide,
+} from './slides/mod10/Mod10SimulationSlides';
+import {
+  Mod10TaskMusicSlide,
+  Mod10SummarySlide,
+  Mod10ClosingSlide,
+} from './slides/mod10/Mod10ExperimentAndClosingSlides';
 
 const slideVariants = {
   enter: (direction) => ({
@@ -82,127 +91,169 @@ const slideVariants = {
   }),
 };
 
-const SLIDE_COMPONENTS = [
-  CoverSlide,
-  ReviewLayoutManagerSlide,
-  ReviewBorderLayoutSlide,
-  ObjectivesSlide,
-  FormVisualSimulationSlide,
-  EventIntroSlide,
-  ListenerIntroSlide,
-  EventDeepDiveSlide,
-  ListenerArchitectureSlide,
-  ActionListenerLambdaSlide,
-  GuiEventConceptSlide,
-  FourStagesPipelineSlide,
-  ValidationFailureUxSlide,
-  ValidationTypesMatrixSlide,
-  ParsingAndBusinessRuleSlide,
-  ErrorMessageBestPracticeSlide,
-  CardLayoutConceptSlide,
-  CardLayoutInteractiveSimSlide,
-  DemoCodeStructureSlide,
-  DemoCodePanelsSlide,
-  DemoCodeValidationSlide,
-  EdtConceptSlide,
-  SwingWorkerTableSlide,
-  SwingWorkerIntegrationSlide,
-  FormStateConsistencySlide,
-  ExperimentSetupSlide,
-  ChallengeModifikasiSlide,
-  SummarySlide,
-  ClosingSlide,
-];
+const MODULE_SLIDE_COMPONENTS = {
+  'modul-09': [
+    CoverSlide,
+    ReviewLayoutManagerSlide,
+    ReviewBorderLayoutSlide,
+    ObjectivesSlide,
+    FormVisualSimulationSlide,
+    EventIntroSlide,
+    ListenerIntroSlide,
+    EventDeepDiveSlide,
+    ListenerArchitectureSlide,
+    ActionListenerLambdaSlide,
+    GuiEventConceptSlide,
+    FourStagesPipelineSlide,
+    ValidationFailureUxSlide,
+    ValidationTypesMatrixSlide,
+    ParsingAndBusinessRuleSlide,
+    ErrorMessageBestPracticeSlide,
+    CardLayoutConceptSlide,
+    CardLayoutInteractiveSimSlide,
+    DemoCodeStructureSlide,
+    DemoCodePanelsSlide,
+    DemoCodeValidationSlide,
+    EdtConceptSlide,
+    SwingWorkerTableSlide,
+    SwingWorkerIntegrationSlide,
+    FormStateConsistencySlide,
+    ExperimentSetupSlide,
+    ChallengeModifikasiSlide,
+    SummarySlide,
+    ClosingSlide,
+  ],
+  'modul-10': [
+    Mod10CoverSlide,
+    Mod10ReviewStagesSlide,
+    Mod10ObjectivesSlide,
+    Mod10JTableScrollSimSlide,
+    Mod10TableModelConceptSlide,
+    Mod10SortingTypeSimSlide,
+    Mod10ViewVsModelSimSlide,
+    Mod10IdentityVsIndexSlide,
+    Mod10CoreCodeSlide,
+    Mod10MemoryVsDbSimSlide,
+    Mod10LayeredArchSimSlide,
+    Mod10TaskMusicSlide,
+    Mod10SummarySlide,
+    Mod10ClosingSlide,
+  ],
+};
+
+const STAGE_WIDTH = 1280;
+const STAGE_HEIGHT = 760;
+
+function useViewportScale() {
+  const [layout, setLayout] = useState(() => {
+    if (typeof window === 'undefined') return { scale: 1, isMobile: false };
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    return {
+      isMobile: w < 768,
+      scale: Math.min(w / STAGE_WIDTH, h / STAGE_HEIGHT),
+    };
+  });
+
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      setLayout({
+        isMobile: w < 768,
+        scale: Math.min(w / STAGE_WIDTH, h / STAGE_HEIGHT),
+      });
+    };
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
+
+  return layout;
+}
 
 export default function App() {
+  const [activeModuleId, setActiveModuleId] = useState(null);
   const [[currentSlide, direction], setSlideState] = useState([0, 0]);
-  const [reviewStep, setReviewStep] = useState(0);
-  const [borderStep, setBorderStep] = useState(0);
-  const [errorStep, setErrorStep] = useState(0);
+  const [subStep, setSubStep] = useState(0);
+  const { scale, isMobile } = useViewportScale();
+
+  const activeModule = MODULES_CONFIG.find((m) => m.id === activeModuleId) || null;
+  const slideComponents = activeModuleId ? MODULE_SLIDE_COMPONENTS[activeModuleId] || [] : [];
+  const totalSlides = slideComponents.length;
+
+  useEffect(() => {
+    if (!activeModule) {
+      document.title = 'Presentasi Praktikum Pemrograman II — IF21W0508';
+    } else {
+      document.title = `${activeModule.code}: ${activeModule.title} — Praktikum Pemrograman II`;
+    }
+  }, [activeModule]);
+
+  const handleSelectModule = useCallback((moduleId) => {
+    setActiveModuleId(moduleId);
+    setSlideState([0, 0]);
+    setSubStep(0);
+  }, []);
+
+  const handleGoHome = useCallback(() => {
+    setActiveModuleId(null);
+    setSlideState([0, 0]);
+    setSubStep(0);
+  }, []);
 
   const navigateTo = useCallback(
     (targetIndex) => {
-      if (targetIndex < 0 || targetIndex >= TOTAL_SLIDES || targetIndex === currentSlide) {
+      if (targetIndex < 0 || targetIndex >= totalSlides || targetIndex === currentSlide) {
         return;
       }
       const newDirection = targetIndex > currentSlide ? 1 : -1;
       setSlideState([targetIndex, newDirection]);
-      setReviewStep(0);
-      setBorderStep(0);
-      setErrorStep(0);
+      setSubStep(0);
     },
-    [currentSlide]
+    [currentSlide, totalSlides]
   );
 
   const handleNext = useCallback(() => {
-    // Slide 2 (index 1: ReviewLayoutManagerSlide) reveals answers one by one (step 1, 2, 3)
-    if (currentSlide === 1 && reviewStep < 3) {
-      setReviewStep((prev) => prev + 1);
+    if (!activeModule) return;
+
+    const maxStepForCurrent = activeModule.subSteps?.[currentSlide] ?? 0;
+    if (maxStepForCurrent > 0 && subStep < maxStepForCurrent) {
+      setSubStep((prev) => prev + 1);
       return;
     }
 
-    // Slide 3 (index 2: ReviewBorderLayoutSlide) reveals answers one by one (step 1 to 5)
-    if (currentSlide === 2 && borderStep < 5) {
-      setBorderStep((prev) => prev + 1);
-      return;
-    }
-
-    // Slide 16 (index 15: ErrorMessageBestPracticeSlide) has 6 interactive sub-steps (0 to 5)
-    if (currentSlide === 15 && errorStep < 5) {
-      setErrorStep((prev) => prev + 1);
-      return;
-    }
-
-    if (currentSlide < TOTAL_SLIDES - 1) {
+    if (currentSlide < totalSlides - 1) {
       setSlideState([currentSlide + 1, 1]);
-      setReviewStep(0);
-      setBorderStep(0);
-      setErrorStep(0);
+      setSubStep(0);
     }
-  }, [currentSlide, reviewStep, borderStep, errorStep]);
+  }, [activeModule, currentSlide, subStep, totalSlides]);
 
   const handlePrev = useCallback(() => {
-    // If on Slide 2 and answers are revealed, step backwards one by one
-    if (currentSlide === 1 && reviewStep > 0) {
-      setReviewStep((prev) => prev - 1);
-      return;
-    }
+    if (!activeModule) return;
 
-    // If on Slide 3 and answers are revealed, step backwards one by one
-    if (currentSlide === 2 && borderStep > 0) {
-      setBorderStep((prev) => prev - 1);
-      return;
-    }
-
-    // If on Slide 16 and in sub-steps, step backwards within the slide
-    if (currentSlide === 15 && errorStep > 0) {
-      setErrorStep((prev) => prev - 1);
+    const maxStepForCurrent = activeModule.subSteps?.[currentSlide] ?? 0;
+    if (maxStepForCurrent > 0 && subStep > 0) {
+      setSubStep((prev) => prev - 1);
       return;
     }
 
     if (currentSlide > 0) {
-      setSlideState([currentSlide - 1, -1]);
-      if (currentSlide - 1 === 1) {
-        setReviewStep(3);
-      } else {
-        setReviewStep(0);
-      }
-      if (currentSlide - 1 === 2) {
-        setBorderStep(5);
-      } else {
-        setBorderStep(0);
-      }
-      if (currentSlide - 1 === 15) {
-        setErrorStep(5);
-      } else {
-        setErrorStep(0);
-      }
+      const prevSlide = currentSlide - 1;
+      setSlideState([prevSlide, -1]);
+      const prevMaxStep = activeModule.subSteps?.[prevSlide] ?? 0;
+      setSubStep(prevMaxStep);
     }
-  }, [currentSlide, reviewStep, borderStep, errorStep]);
+  }, [activeModule, currentSlide, subStep]);
 
   useEffect(() => {
+    if (!activeModuleId) return;
+
     const handleKeyDown = (e) => {
-      if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+      const activeTag = document.activeElement?.tagName;
+      if (['INPUT', 'TEXTAREA'].includes(activeTag)) {
+        return;
+      }
+      if (e.key === ' ' && activeTag === 'BUTTON') {
         return;
       }
       if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
@@ -216,58 +267,72 @@ export default function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNext, handlePrev]);
+  }, [activeModuleId, handleNext, handlePrev]);
 
-  const CurrentSlideComponent = SLIDE_COMPONENTS[currentSlide] || CoverSlide;
+  const CurrentSlideComponent = slideComponents[currentSlide] || null;
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-[#FAFAFA] text-zinc-900 select-none">
       {/* Background Animation (Dipertahankan) */}
       <PixelBackground />
 
-      {/* Main Slide Presentation Container (100vh Full Screen) */}
-      <main className="relative z-10 w-full h-full overflow-hidden">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={currentSlide}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            className="w-full h-full"
-          >
-            <CurrentSlideComponent
-              step={
-                currentSlide === 1
-                  ? reviewStep
-                  : currentSlide === 2
-                  ? borderStep
-                  : errorStep
-              }
-              setStep={
-                currentSlide === 1
-                  ? setReviewStep
-                  : currentSlide === 2
-                  ? setBorderStep
-                  : setErrorStep
-              }
-              onNextStep={handleNext}
-              onPrevStep={handlePrev}
-            />
-          </motion.div>
-        </AnimatePresence>
+      {/* Main Container (Proportional Presentation Stage on Desktop/Laptop) */}
+      <main className="relative z-10 w-full h-full flex items-center justify-center overflow-hidden">
+        <div
+          style={
+            isMobile
+              ? undefined
+              : {
+                  width: `${STAGE_WIDTH}px`,
+                  height: `${STAGE_HEIGHT}px`,
+                  transform: `scale(${scale})`,
+                  transformOrigin: 'center center',
+                }
+          }
+          className={isMobile ? 'w-full h-full overflow-y-auto' : 'shrink-0 relative'}
+        >
+          {!activeModule ? (
+            <ModuleSelector modules={MODULES_CONFIG} onSelectModule={handleSelectModule} />
+          ) : (
+            <AnimatePresence mode="wait" custom={direction}>
+              <motion.div
+                key={`${activeModuleId}-${currentSlide}`}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                className="w-full h-full"
+              >
+                {CurrentSlideComponent && (
+                  <CurrentSlideComponent
+                    step={subStep}
+                    setStep={setSubStep}
+                    onNextStep={handleNext}
+                    onPrevStep={handlePrev}
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
+          )}
+        </div>
       </main>
 
-      {/* Discreet PPT Navigation Controls (Bottom-Left Jump & Bottom-Right Prev/Next) */}
-      <FloatingNav
-        currentIndex={currentSlide}
-        totalSlides={TOTAL_SLIDES}
-        slidesList={SLIDES_LIST}
-        onPrev={handlePrev}
-        onNext={handleNext}
-        onSelectSlide={navigateTo}
-      />
+      {/* Discreet PPT Navigation Controls */}
+      {activeModule && (
+        <FloatingNav
+          currentIndex={currentSlide}
+          totalSlides={totalSlides}
+          slidesList={activeModule.slidesList}
+          modules={MODULES_CONFIG}
+          activeModuleId={activeModuleId}
+          onSelectModule={handleSelectModule}
+          onGoHome={handleGoHome}
+          onPrev={handlePrev}
+          onNext={handleNext}
+          onSelectSlide={navigateTo}
+        />
+      )}
     </div>
   );
 }
