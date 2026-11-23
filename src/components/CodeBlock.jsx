@@ -16,7 +16,7 @@ function tokenizeCodeLine(line) {
 
   // Regex handles Java, Swing, SQL & JS/JSX tokens
   const tokenRegex =
-    /(\/\*[\s\S]*?\*\/|--.*$|\/\/.*$|'(?:\\.|[^'])*'|"(?:\\.|[^"])*"|`(?:\\.|[^`])*`|\b(?:package|import|public|private|protected|static|final|class|interface|extends|implements|void|return|new|try|catch|finally|throw|throws|if|else|for|while|switch|case|break|continue|true|false|null|this|super|var|const|let|function|export|default)\b|\b(?:int|long|double|float|boolean|char|byte|short|String|Integer|Object|Exception|RuntimeException|IllegalArgumentException|NumberFormatException|ExecutionException|InterruptedException|CancellationException|JFrame|JPanel|JButton|JLabel|JTextField|JTextArea|JScrollPane|JOptionPane|CardLayout|BorderLayout|GridLayout|BorderFactory|SwingUtilities|SwingWorker|ActionListener|ActionEvent|Override)\b|\b(?:addActionListener|actionPerformed|invokeLater|showMessageDialog|parseInt|getText|setText|trim|isEmpty|isBlank|requestFocusInWindow|selectAll|setEditable|setLineWrap|setWrapStyleWord|setCaretPosition|setDefaultCloseOperation|setContentPane|setLocationRelativeTo|setVisible|pack|show|add|createEmptyBorder|doInBackground|process|done|execute|get)\b|\b[A-Z][A-Z0-9_]{2,}\b|\b\d+(?:_\d+)*\b|[{}()[\].,:;=?+-><|&!]+|\s+|[^\s]+)/g;
+    /(\/\*[\s\S]*?\*\/|--.*$|\/\/.*$|'(?:\\.|[^'])*'|"(?:\\.|[^"])*"|`(?:\\.|[^`])*`|\b(?:package|import|public|private|protected|static|final|class|interface|extends|implements|void|return|new|try|catch|finally|throw|throws|if|else|for|while|switch|case|break|continue|true|false|null|this|super|var|const|let|function|export|default)\b|\b(?:int|long|double|float|boolean|char|byte|short|String|Integer|Long|Object|Class|List|ArrayList|Arrays|Exception|RuntimeException|IllegalArgumentException|NumberFormatException|IndexOutOfBoundsException|ExecutionException|InterruptedException|CancellationException|JFrame|JPanel|JButton|JLabel|JTextField|JTextArea|JScrollPane|JOptionPane|JTable|TableModel|DefaultTableModel|AbstractTableModel|ListSelectionModel|CardLayout|BorderLayout|GridLayout|BorderFactory|SwingUtilities|SwingWorker|ActionListener|ActionEvent|Override|Barang|BarangTableModel|BarangDao)\b|\b(?:addActionListener|actionPerformed|invokeLater|showMessageDialog|parseInt|getText|setText|trim|isEmpty|isBlank|requestFocusInWindow|selectAll|setEditable|setLineWrap|setWrapStyleWord|setCaretPosition|setDefaultCloseOperation|setContentPane|setLocationRelativeTo|setVisible|setSize|pack|show|add|createEmptyBorder|doInBackground|process|done|execute|get|setAutoCreateRowSorter|setSelectionMode|getSelectedRow|convertRowIndexToModel|convertRowIndexToView|getValueAt|getColumnClass|getColumnName|getRowCount|getColumnCount|isCellEditable|fireTableDataChanged|setData|getBarang|getId|getNama|getStok|cariSemua|asList|size)\b|\b[A-Z][A-Z0-9_]{2,}\b|\b\d+(?:_\d+)*L?\b|[{}()[\].,:;=?+-><|&!]+|\s+|[^\s]+)/g;
 
   const tokens = [];
   let match;
@@ -37,20 +37,20 @@ function tokenizeCodeLine(line) {
     ) {
       tokens.push({ type: 'keyword', value: val });
     } else if (
-      /^(int|long|double|float|boolean|char|byte|short|String|Integer|Object|Exception|RuntimeException|IllegalArgumentException|NumberFormatException|ExecutionException|InterruptedException|CancellationException|JFrame|JPanel|JButton|JLabel|JTextField|JTextArea|JScrollPane|JOptionPane|CardLayout|BorderLayout|GridLayout|BorderFactory|SwingUtilities|SwingWorker|ActionListener|ActionEvent|Override)$/.test(
+      /^(int|long|double|float|boolean|char|byte|short|String|Integer|Long|Object|Class|List|ArrayList|Arrays|Exception|RuntimeException|IllegalArgumentException|NumberFormatException|IndexOutOfBoundsException|ExecutionException|InterruptedException|CancellationException|JFrame|JPanel|JButton|JLabel|JTextField|JTextArea|JScrollPane|JOptionPane|JTable|TableModel|DefaultTableModel|AbstractTableModel|ListSelectionModel|CardLayout|BorderLayout|GridLayout|BorderFactory|SwingUtilities|SwingWorker|ActionListener|ActionEvent|Override|Barang|BarangTableModel|BarangDao)$/.test(
         val
       )
     ) {
       tokens.push({ type: 'builtin', value: val });
     } else if (
-      /^(addActionListener|actionPerformed|invokeLater|showMessageDialog|parseInt|getText|setText|trim|isEmpty|isBlank|requestFocusInWindow|selectAll|setEditable|setLineWrap|setWrapStyleWord|setCaretPosition|setDefaultCloseOperation|setContentPane|setLocationRelativeTo|setVisible|pack|show|add|createEmptyBorder|doInBackground|process|done|execute|get)$/.test(
+      /^(addActionListener|actionPerformed|invokeLater|showMessageDialog|parseInt|getText|setText|trim|isEmpty|isBlank|requestFocusInWindow|selectAll|setEditable|setLineWrap|setWrapStyleWord|setCaretPosition|setDefaultCloseOperation|setContentPane|setLocationRelativeTo|setVisible|setSize|pack|show|add|createEmptyBorder|doInBackground|process|done|execute|get|setAutoCreateRowSorter|setSelectionMode|getSelectedRow|convertRowIndexToModel|convertRowIndexToView|getValueAt|getColumnClass|getColumnName|getRowCount|getColumnCount|isCellEditable|fireTableDataChanged|setData|getBarang|getId|getNama|getStok|cariSemua|asList|size)$/.test(
         val
       )
     ) {
       tokens.push({ type: 'method', value: val });
     } else if (/^[A-Z][A-Z0-9_]{2,}$/.test(val)) {
       tokens.push({ type: 'constant', value: val });
-    } else if (/^\d+(?:_\d+)*$/.test(val)) {
+    } else if (/^\d+(?:_\d+)*L?$/.test(val)) {
       tokens.push({ type: 'number', value: val });
     } else if (/^[{}()[\];,.:->]+$/.test(val)) {
       tokens.push({ type: 'brace', value: val });
